@@ -51,11 +51,7 @@ def _read_summary_from_stream_reader(stream_reader: StreamReader) -> Optional[Su
         elif isinstance(record, MetadataIndex):
             summary.metadata_indexes.append(record)
         elif isinstance(record, Footer):
-            # There is no summary!
-            if record.summary_offset_start == 0:
-                return None
-            else:
-                return summary
+            return summary
     return summary
 
 
@@ -186,8 +182,6 @@ class SeekingReader(McapReader):
             raise McapError(
                 f"expected footer at end of mcap file, found {type(footer)}"
             )
-        if footer.summary_offset_start == 0:
-            return None
         self._stream.seek(footer.summary_start, io.SEEK_SET)
         self._summary = _read_summary_from_stream_reader(
             StreamReader(self._stream, skip_magic=True)
